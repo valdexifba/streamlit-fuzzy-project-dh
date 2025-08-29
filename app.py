@@ -16,32 +16,32 @@ st.markdown("""
 <style>
 /* Estilo para a barra de abas */
 div[data-baseweb="tab-list"] {
-    gap: 10px; /* Espaçamento entre as abas */
+    gap: 10px;
 }
 
 /* Estilo para cada aba individual */
 button[data-baseweb="tab"] {
-    background-color: #E0F2F7; /* Cor de fundo padrão para abas */
-    color: #000000; /* Cor do texto */
-    border-radius: 8px; /* Cantos arredondados */
-    padding: 10px 20px; /* Preenchimento */
-    font-size: 16px; /* Tamanho da fonte */
-    font-weight: bold; /* Negrito */
-    border: 1px solid #B0E0E6; /* Borda */
-    transition: all 0.2s ease-in-out; /* Transição suave */
+    background-color: #E0F2F7;
+    color: #000000;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    border: 1px solid #B0E0E6;
+    transition: all 0.2s ease-in-out;
 }
 
 /* Estilo para a aba selecionada */
 button[data-baseweb="tab"][aria-selected="true"] {
-    background-color: #4CAF50; /* Cor de fundo para aba selecionada (verde) */
-    color: white; /* Cor do texto para aba selecionada */
+    background-color: #4CAF50;
+    color: white;
     border-color: #4CAF50;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombra para destacar */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 /* Estilo para o hover da aba */
 button[data-baseweb="tab"]:hover:not([aria-selected="true"]) {
-    background-color: #B0E0E6; /* Cor de fundo ao passar o mouse */
+    background-color: #B0E0E6;
     color: #333333;
     border-color: #87CEEB;
 }
@@ -50,8 +50,21 @@ button[data-baseweb="tab"]:hover:not([aria-selected="true"]) {
 .stTabs [data-baseweb="tab-list"] button[aria-selected="true"] {
   box-shadow: none;
 }
+
+/* --- NOVAS REGRAS PARA O ESPAÇAMENTO --- */
+/* Reduz a margem do título */
+h2 {
+    margin-bottom: 5px;
+}
+/* Reduz a margem do divisor */
+hr.st-bv {
+    margin-top: 5px;
+    margin-bottom: 20px;
+}
 </style>
 """, unsafe_allow_html=True)
+
+# ... o restante do seu código
 
 
 
@@ -167,6 +180,9 @@ def plot_interactive_subsystem(cof_val, aed_val):
     # Plot COF
     for term, mf in COF.terms.items():
         ax_cof.plot(COF.universe, mf.mf, label=term)
+        # Adiciona a bolinha para cada função de pertinência
+        y_value = np.interp(cof_val, COF.universe, mf.mf)
+        ax_cof.plot(cof_val, y_value, 'o', markersize=8)
     ax_cof.set_title("COF")
     ax_cof.legend()
     ax_cof.grid(True)
@@ -175,14 +191,19 @@ def plot_interactive_subsystem(cof_val, aed_val):
     # Plot AED
     for term, mf in AED.terms.items():
         ax_aed.plot(AED.universe, mf.mf, label=term)
+        # Adiciona a bolinha para cada função de pertinência
+        y_value = np.interp(aed_val, AED.universe, mf.mf)
+        ax_aed.plot(aed_val, y_value, 'o', markersize=8)
     ax_aed.set_title("AED")
     ax_aed.legend()
     ax_aed.grid(True)
     ax_aed.axvline(x=aed_val, color='k', linestyle='--', linewidth=1)
 
-    # Plot SIF1
+    # Plot SIF1 (já tinha as bolinhas)
     for term, mf in SIF1.terms.items():
         ax_sif1.plot(SIF1.universe, mf.mf, label=term)
+        y_value = np.interp(sif1_result, SIF1.universe, mf.mf)
+        ax_sif1.plot(sif1_result, y_value, 'o', markersize=8)
     ax_sif1.set_title(f"SIF1 (Saída) - Valor: {sif1_result:.2f}")
     ax_sif1.legend()
     ax_sif1.grid(True)
@@ -204,17 +225,18 @@ tab1_simular, tab2_subsistema, tab3_principal = st.tabs(["Simulação", "Subsist
 if 'simulacao_ativa' not in st.session_state:
     st.session_state.simulacao_ativa = False
 with tab1_simular:
-    st.header("Simulação Dinâmica & Processamento de Lote")
+    st.markdown("<h2 style='text-align: left; color: #2E86C1;'>Simulação Dinâmica & Processamento em Lote</h2>", unsafe_allow_html=True)
+    st.divider()  # <--- NOVA DIVISÓRIA AQUI
 
     st.markdown("### Simulação Manual")
 
     col1, col2 = st.columns(2)
     with col1:
-        cof_val = st.slider("Coabitação Familiar:", 0.0, 80.0, 40.0, help="Varia de 0 a 80")
-        dop_val = st.slider("Domicílios precários:", 0.0, 40.0, 20.0, help="Varia de 0 a 40")
+        cof_val = st.slider("Coabitação Familiar (COF):", 0.0, 80.0, 40.0, help="Varia de 0 a 80")
+        dop_val = st.slider("Domicílios Precários(DOP):", 0.0, 40.0, 20.0, help="Varia de 0 a 40")
     with col2:
-        aed_val = st.slider("Adensamento familiar:", 0.0, 40.0, 15.0, help="Varia de 0 a 40")
-        oea_val = st.slider("Ônus Excessivoo com Aluguel:", 0.0, 70.0, 35.0, help="Varia de 0 a 70")
+        aed_val = st.slider("Adensamento excessivo de domicílios(AED):", 0.0, 40.0, 15.0, help="Varia de 0 a 40")
+        oea_val = st.slider("ônus excessivo com aluguel(OEA):", 0.0, 70.0, 35.0, help="Varia de 0 a 70")
 
     # Botão que ativa o modo de auto-cálculo
     if st.button("Simular"):
@@ -232,8 +254,8 @@ with tab1_simular:
             st.success(f"**SIF1 (Subsistema):** {sif1_result:.2f}")
             st.success(f"**IFDH (Final):** {ifdh_result:.2f}")
             st.markdown("---")
-            st.subheader("Gráfico Dinâmico de SIF1")
-            st.pyplot(plot_dynamic_mf(SIF1, sif1_result))
+            st.subheader("Gráfico Dinâmico da saída crisp do Índice de Similaridade Fuzzy (IFDH)") # <--- AQUI ESTÁ A MUDANÇA
+            st.pyplot(plot_dynamic_mf(IFDH, ifdh_result)) # <--- E AQUI TAMBÉM
         else:
             st.error(
                 "Erro no cálculo do IFDH. Os valores de entrada não ativaram nenhuma regra. Tente valores mais altos.")
