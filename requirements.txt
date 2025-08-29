@@ -6,3 +6,4 @@ scikit-fuzzy
 scipy
 networkx
 xlsxwriter
+openpyxl #para leitura de arquivos excel
