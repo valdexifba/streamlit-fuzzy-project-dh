@@ -226,7 +226,7 @@ if 'simulacao_ativa' not in st.session_state:
     st.session_state.simulacao_ativa = False
 with tab1_simular:
     st.markdown("<h2 style='text-align: left; color: #2E86C1;'>Simulação Dinâmica & Processamento em Lote</h2>", unsafe_allow_html=True)
-    st.divider()  # <--- NOVA DIVISÓRIA AQUI
+   # st.write("---")  # <--- NOVA DIVISÓRIA AQUI
 
     st.markdown("### Simulação Manual")
 
